@@ -2,8 +2,6 @@ import os
 from time import sleep
 import RPi.GPIO as gpio
 
-#prev_state = 0
-
 gpio.setmode(gpio.BCM)
 gpio.setup(2, gpio.IN, pull_up_down=gpio.PUD_DOWN)
 gpio.setup(20, gpio.OUT)
@@ -36,7 +34,7 @@ def alternateLED(channel):                            ####### don't overuse gpio
 		
 
 prev_state=0  
-gpio.add_event_detect(2, gpio.BOTH, callback = lambda channel: alternateLED(channel), bouncetime=300)	
+gpio.add_event_detect(2, gpio.FALLING, callback = lambda channel: alternateLED(channel), bouncetime=300)	
 try:
 	while True:
 		sleep(0.4)
