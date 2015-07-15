@@ -5,50 +5,34 @@ bus = smbus.SMBus(1)
 
 DEVICE = 0x20
 IODIRA = 0x00
-MCP = 0x14     #OLATA?
-GPIOA = 0x12
+IODIRB = 0x01
+# MCP = 0x14 for OLATA and 0x15 for OLATB but i am using GPIOA/B#                                                                                                                      
+GPIOA = 0x12       
+GPIOB = 0x13
 
+bus.write_byte_data(DEVICE, IODIRA, 0) #sets GPIOA to all output
+bus.write_byte_data(DEVICE, IODIRB, 0) #sets GPIOB to all output
+bus.write_byte_data(DEVICE, GPIOA, 0) #sets GPIOA pins to 0
+bus.write_byte_data(DEVICE, GPIOB, 0) #sets GPIOB pins to 0
 
-bus.write_byte_data(DEVICE, MCP, 0)
-bus.write_byte_data(DEVICE,MCP,0x00)
-time.sleep(1)
-'''
-next = 0b00000001
-for i in range(0,17):
-	if i < 7:
-		i += 1
-		bus.write_byte_data(DEVICE,MCP,next)
-		time.sleep(0.1)
-		next = next << 1
-	else:
-		i += 1
-		bus.write_byte_data(DEVICE,MCP,next)
-		time.sleep(0.1)
-		next = next >> 1	
-'''
-
-def lightUp():
-	next = 0b00000001
+def lightUp(gpio):
 	for i in range(0,8):
-		i += 1
-		bus.write_byte_data(DEVICE,MCP,next)
-		time.sleep(0.1)
-		next = next << 1
+		bus.write_byte_data(DEVICE,gpio,0b0000000011111111<<i)
+		time.sleep(0.05)
 		
-def lightDown():
-	next = 0b10000000
+def lightDown(gpio):
 	for i in range(0,8):
-		i += 1
-		bus.write_byte_data(DEVICE,MCP,next)
-		time.sleep(0.1)
-		next = next >> 1
-	
+		bus.write_byte_data(DEVICE,gpio,0b1111111100000000>>i)
+		time.sleep(0.05)
+
+
 	
 try:
 	while True:
-		lightUp()
-		lightDown()
+		lightDown(GPIOA)  #use GPIOA or GPIOB
+		lightUp(GPIOA)
 except KeyboardInterrupt:
-	bus.write_byte_data(DEVICE,OLATA,0)
+	bus.write_byte_data(DEVICE,GPIOA,0)
+	bus.write_byte_data(DEVICE,GPIOB,0)
 	
-bus.write_byte_data(DEVICE,MCP,0)
+
